@@ -1,10 +1,11 @@
 // ==UserScript==
 // @name         Brightspace AU Logo Changer
 // @namespace    http://tampermonkey.net/
-// @version      0.4
+// @version      0.5
 // @description  Make the Brightspace logo a little happier
 // @namespace    https://github.com/johandegn/Brightspace-AU-Logo-Changer
 // @match        https://brightspace.au.dk/*
+// @run-at       document-idle
 // @grant        none
 // ==/UserScript==
 
@@ -25,4 +26,5 @@ function init() {
         img.src = new_src;
     }
 }
-window.onload = init;
+init();
+//window.onload = init;
