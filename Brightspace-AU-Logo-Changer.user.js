@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Brightspace AU Logo Changer
 // @namespace    http://tampermonkey.net/
-// @version      0.9
+// @version      0.10
 // @description  Make the Brightspace logo a little happier
 // @namespace    https://github.com/johandegn/Brightspace-AU-Logo-Changer
 // @match        https://brightspace.au.dk/*
@@ -62,6 +62,9 @@ async function updateMenuCmd() {
 async function init() {
     fade = await GM.getValue("fade", true);
     updateMenuCmd();
+    while (document.readyState !== 'complete') {
+        await sleep(25);
+    }
 
     let img = document.getElementsByClassName('d2l-navigation-s-logo')[0].firstChild.shadowRoot.lastChild.firstChild.firstChild;
     let cur_src = img.src.split("?")[0];
