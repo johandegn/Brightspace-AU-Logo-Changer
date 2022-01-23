@@ -1,12 +1,15 @@
 // ==UserScript==
 // @name         Brightspace AU Logo Changer
 // @namespace    http://tampermonkey.net/
-// @version      0.8
+// @version      0.9
 // @description  Make the Brightspace logo a little happier
 // @namespace    https://github.com/johandegn/Brightspace-AU-Logo-Changer
 // @match        https://brightspace.au.dk/*
 // @run-at       document-idle
-// @grant        none
+// @grant        GM.getValue
+// @grant        GM.setValue
+// @grant        GM.registerMenuCommand
+// @grant        GM.unregisterMenuCommand
 // ==/UserScript==
 
 const logo = 'https://raw.githubusercontent.com/johandegn/Brightspace-AU-Logo-Changer/main/smiley-logo-au.png';
@@ -16,7 +19,8 @@ img_map.set('https://brightspace.au.dk/d2l/lp/navbars/6606/theme/viewimage/780/v
 img_map.set('https://brightspace.au.dk/d2l/lp/navbars/6606/theme/viewimage/779/view', home);
 
 const fade_speed = 25;
-const fade = true; // Change manually
+let fade = true;
+let cmdId = null;
 
 function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
@@ -42,10 +46,22 @@ async function fadeOut(elm) {
     elm.style.opacity = 0;
 }
 
-async function init() {
-    while (document.readyState !== 'complete') {
-        await sleep(100);
+async function toggleFade() {
+    fade = !fade;
+    GM.setValue("fade", fade);
+    await updateMenuCmd();
+}
+
+async function updateMenuCmd() {
+    if (cmdId !== null) {
+        GM.unregisterMenuCommand(cmdId);
     }
+    cmdId = await GM.registerMenuCommand(fade ? "Disable Fade" : "Enable Fade", toggleFade, "");
+}
+
+async function init() {
+    fade = await GM.getValue("fade", true);
+    updateMenuCmd();
 
     let img = document.getElementsByClassName('d2l-navigation-s-logo')[0].firstChild.shadowRoot.lastChild.firstChild.firstChild;
     let cur_src = img.src.split("?")[0];
