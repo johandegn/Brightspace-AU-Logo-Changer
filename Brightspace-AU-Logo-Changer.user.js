@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Brightspace AU Logo Changer
 // @namespace    http://tampermonkey.net/
-// @version      0.10
+// @version      0.11
 // @description  Make the Brightspace logo a little happier
 // @namespace    https://github.com/johandegn/Brightspace-AU-Logo-Changer
 // @match        https://brightspace.au.dk/*
@@ -59,7 +59,7 @@ async function updateMenuCmd() {
     cmdId = await GM.registerMenuCommand(fade ? "Disable Fade" : "Enable Fade", toggleFade, "");
 }
 
-async function init() {
+(async function() {
     fade = await GM.getValue("fade", true);
     updateMenuCmd();
     while (document.readyState !== 'complete') {
@@ -81,5 +81,4 @@ async function init() {
         });
     }
     img.src = new_src;
-}
-init();
+})();
