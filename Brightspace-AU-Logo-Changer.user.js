@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Brightspace AU Logo Changer
 // @namespace    http://tampermonkey.net/
-// @version      0.12
+// @version      0.13
 // @description  Make the Brightspace logo a little happier
 // @namespace    https://github.com/johandegn/Brightspace-AU-Logo-Changer
 // @match        https://brightspace.au.dk/*
@@ -66,7 +66,9 @@ async function updateMenuCmd() {
         await sleep(25);
     }
 
-    let img = document.getElementsByTagName('d2l-navigation-link-image')[0].shadowRoot.children[0].children[1].firstChild;
+    let imgs = document.getElementsByTagName('d2l-navigation-link-image');
+    imgs[1].shadowRoot.children[0].children[1].firstChild.src = home;
+    let img = imgs[0].shadowRoot.children[0].children[1].firstChild;
     let cur_src = img.currentSrc.split("?")[0];
 
     let new_src = img_map.get(cur_src);
