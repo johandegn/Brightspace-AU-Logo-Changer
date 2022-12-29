@@ -24,8 +24,8 @@ img_map.set(og_home, home);
 const alt_logo = 'https://raw.githubusercontent.com/johandegn/Brightspace-AU-Logo-Changer/main/smiley-logo-au-alt.png';
 const alt_home = 'https://raw.githubusercontent.com/johandegn/Brightspace-AU-Logo-Changer/main/smiley-home-au-alt.png';
 const alt_img_map = new Map();
-alt_img_map.set(og_logo, logo);
-alt_map.set(og_home, home);
+alt_img_map.set(og_logo, alt_logo);
+alt_img_map.set(og_home, alt_home);
 
 const fade_speed = 25;
 let fade = true;
@@ -60,29 +60,34 @@ async function fadeOut(elm) {
 async function toggleFade() {
     fade = !fade;
     GM.setValue("fade", fade);
-    await updateMenuCmd();
+    await updateFadeMenuCmd();
 }
 
 async function toggleAltImg() {
     alt_img = !alt_img;
     GM.setValue("alt_img", alt_img);
-    await updateMenuCmd();
+    await updateAltImgMenuCmd();
 }
 
-async function updateMenuCmd() {
+async function updateFadeMenuCmd() {
     if (fade_cmd_id !== null) {
-        GM.unregisterMenuCommand(fade_cmd_id);
-    }
-    if (alt_img_cmd_id !== null) {
-        GM.unregisterMenuCommand(alt_img_cmd_id);
+        await GM.unregisterMenuCommand(fade_cmd_id);
     }
     fade_cmd_id = await GM.registerMenuCommand(fade ? "Disable Fade" : "Enable Fade", toggleFade, "");
-    alt_img_cmd_id = await GM.registerMenuCommand(alt_img ? "Use default image" : "Use alternative image", toggleAltImg, "");
+}
+
+async function updateAltImgMenuCmd() {
+    if (alt_img_cmd_id !== null) {
+        await GM.unregisterMenuCommand(alt_img_cmd_id);
+    }
+    alt_img_cmd_id = await GM.registerMenuCommand(alt_img ? "Use Default Image" : "Use Alternative Image", toggleAltImg, "");
 }
 
 (async function() {
     fade = await GM.getValue("fade", true);
-    updateMenuCmd();
+    alt_img = await GM.getValue("alt_img", true);
+    updateFadeMenuCmd();
+    updateAltImgMenuCmd();
     while (document.readyState !== 'complete') {
         await sleep(25);
     }
