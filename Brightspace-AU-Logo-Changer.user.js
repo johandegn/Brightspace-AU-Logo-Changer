@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Brightspace AU Logo Changer
 // @namespace    http://tampermonkey.net/
-// @version      0.13
+// @version      0.14
 // @description  Make the Brightspace logo a little happier
 // @namespace    https://github.com/johandegn/Brightspace-AU-Logo-Changer
 // @match        https://brightspace.au.dk/*
@@ -12,15 +12,26 @@
 // @grant        GM.unregisterMenuCommand
 // ==/UserScript==
 
+const og_logo = 'https://brightspace.au.dk/d2l/lp/navbars/6606/theme/viewimage/780/view';
+const og_home = 'https://brightspace.au.dk/d2l/lp/navbars/6606/theme/viewimage/779/view';
+
 const logo = 'https://raw.githubusercontent.com/johandegn/Brightspace-AU-Logo-Changer/main/smiley-logo-au.png';
 const home = 'https://raw.githubusercontent.com/johandegn/Brightspace-AU-Logo-Changer/main/smiley-home-au.png';
 const img_map = new Map();
-img_map.set('https://brightspace.au.dk/d2l/lp/navbars/6606/theme/viewimage/780/view', logo);
-img_map.set('https://brightspace.au.dk/d2l/lp/navbars/6606/theme/viewimage/779/view', home);
+img_map.set(og_logo, logo);
+img_map.set(og_home, home);
+
+const alt_logo = 'https://raw.githubusercontent.com/johandegn/Brightspace-AU-Logo-Changer/main/smiley-logo-au-alt.png';
+const alt_home = 'https://raw.githubusercontent.com/johandegn/Brightspace-AU-Logo-Changer/main/smiley-home-au-alt.png';
+const alt_img_map = new Map();
+alt_img_map.set(og_logo, logo);
+alt_map.set(og_home, home);
 
 const fade_speed = 25;
 let fade = true;
-let cmdId = null;
+let fade_cmd_id = null;
+let alt_img = false;
+let alt_img_cmd_id = null;
 
 function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
@@ -52,11 +63,21 @@ async function toggleFade() {
     await updateMenuCmd();
 }
 
+async function toggleAltImg() {
+    alt_img = !alt_img;
+    GM.setValue("alt_img", alt_img);
+    await updateMenuCmd();
+}
+
 async function updateMenuCmd() {
-    if (cmdId !== null) {
-        GM.unregisterMenuCommand(cmdId);
+    if (fade_cmd_id !== null) {
+        GM.unregisterMenuCommand(fade_cmd_id);
     }
-    cmdId = await GM.registerMenuCommand(fade ? "Disable Fade" : "Enable Fade", toggleFade, "");
+    if (alt_img_cmd_id !== null) {
+        GM.unregisterMenuCommand(alt_img_cmd_id);
+    }
+    fade_cmd_id = await GM.registerMenuCommand(fade ? "Disable Fade" : "Enable Fade", toggleFade, "");
+    alt_img_cmd_id = await GM.registerMenuCommand(alt_img ? "Use default image" : "Use alternative image", toggleAltImg, "");
 }
 
 (async function() {
@@ -71,7 +92,7 @@ async function updateMenuCmd() {
     let img = imgs[0].shadowRoot.children[0].children[1].firstChild;
     let cur_src = img.currentSrc.split("?")[0];
 
-    let new_src = img_map.get(cur_src);
+    let new_src = alt_img ? alt_img_map.get(cur_src) : img_map.get(cur_src);
     if (new_src === undefined) {
         console.log('Could not find matching image');
         return;
